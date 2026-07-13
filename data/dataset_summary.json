@@ -1,0 +1,25 @@
+{
+  "total_rows": 234570,
+  "total_features_raw": 55,
+  "total_model_features": 15,
+  "label_counts": {
+    "Legitimate (1)": 134849,
+    "Phishing (0)": 99721
+  },
+  "label_pct": {
+    "Legitimate": 57.49,
+    "Phishing": 42.51
+  },
+  "top_tlds": {
+    "com": 112134,
+    "org": 18789,
+    "net": 7076,
+    "app": 6474,
+    "uk": 6395,
+    "co": 5416,
+    "io": 4194,
+    "de": 3993,
+    "ru": 3870,
+    "au": 2979
+  }
+}

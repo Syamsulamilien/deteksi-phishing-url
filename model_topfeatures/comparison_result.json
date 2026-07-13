@@ -1,0 +1,122 @@
+{
+  "top_n_features": 15,
+  "selected_features": [
+    "NoOfExternalRef",
+    "LineOfCode",
+    "NoOfSelfRef",
+    "NoOfImage",
+    "NoOfJS",
+    "HasSocialNet",
+    "NoOfCSS",
+    "HasCopyrightInfo",
+    "IsHTTPS",
+    "LargestLineLength",
+    "HasDescription",
+    "DegitRatioInURL",
+    "NoOfDegitsInURL",
+    "NoOfOtherSpecialCharsInURL",
+    "URLLength"
+  ],
+  "total_importance_captured_pct": 76.92,
+  "metrics_model_50_features": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "auc": 1.0
+  },
+  "metrics_model_topN_features": {
+    "accuracy": 0.9996589504199173,
+    "precision": 0.9995922301304864,
+    "recall": 0.9998146088246199,
+    "f1": 0.9997034071108145,
+    "auc": 0.9999723883901249
+  },
+  "confusion_matrix": [
+    [
+      19933,
+      11
+    ],
+    [
+      5,
+      26965
+    ]
+  ],
+  "feature_importance_final_model": [
+    {
+      "fitur": "NoOfExternalRef",
+      "importance": 0.1875394444290773,
+      "importance_pct": 18.75
+    },
+    {
+      "fitur": "LineOfCode",
+      "importance": 0.1782318568329693,
+      "importance_pct": 17.82
+    },
+    {
+      "fitur": "NoOfSelfRef",
+      "importance": 0.15482854974099383,
+      "importance_pct": 15.48
+    },
+    {
+      "fitur": "NoOfImage",
+      "importance": 0.1267435692422343,
+      "importance_pct": 12.67
+    },
+    {
+      "fitur": "NoOfJS",
+      "importance": 0.0703361423240365,
+      "importance_pct": 7.03
+    },
+    {
+      "fitur": "NoOfCSS",
+      "importance": 0.06265636226788666,
+      "importance_pct": 6.27
+    },
+    {
+      "fitur": "HasSocialNet",
+      "importance": 0.054997722469465354,
+      "importance_pct": 5.5
+    },
+    {
+      "fitur": "NoOfOtherSpecialCharsInURL",
+      "importance": 0.03395574439065363,
+      "importance_pct": 3.4
+    },
+    {
+      "fitur": "HasCopyrightInfo",
+      "importance": 0.02868968060954372,
+      "importance_pct": 2.87
+    },
+    {
+      "fitur": "HasDescription",
+      "importance": 0.0249450994636046,
+      "importance_pct": 2.49
+    },
+    {
+      "fitur": "IsHTTPS",
+      "importance": 0.024885565603200228,
+      "importance_pct": 2.49
+    },
+    {
+      "fitur": "URLLength",
+      "importance": 0.01714303917444173,
+      "importance_pct": 1.71
+    },
+    {
+      "fitur": "NoOfDegitsInURL",
+      "importance": 0.013644247588449598,
+      "importance_pct": 1.36
+    },
+    {
+      "fitur": "LargestLineLength",
+      "importance": 0.012671049791002902,
+      "importance_pct": 1.27
+    },
+    {
+      "fitur": "DegitRatioInURL",
+      "importance": 0.008731926072440513,
+      "importance_pct": 0.87
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Dokumentasi — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Kesimpulan</div>
+<div class="page-header">
+  <h1>Dokumentasi Penggunaan & Analisis Keamanan TI</h1>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="tab-cara">📘 Cara Menggunakan Aplikasi</button>
+  <button class="tab-btn" data-tab="tab-keamanan">🔒 Analisis Keamanan TI</button>
+</div>
+
+<div id="tab-cara" class="tab-panel active">
+  <div class="card">
+    <ol style="color:var(--text-muted); padding-left:20px;">
+      <li><strong style="color:var(--text-primary);">Beranda</strong> — penjelasan tujuan aplikasi dan ringkasan cepat performa model.</li>
+      <li><strong style="color:var(--text-primary);">Cek URL</strong> — fitur utama. Masukkan URL lengkap (disarankan menyertakan <code>http://</code> atau <code>https://</code>), lalu klik tombol <strong>Cek</strong>.</li>
+      <li><strong style="color:var(--text-primary);">Ringkasan Dataset</strong> — statistik dasar dataset training.</li>
+      <li><strong style="color:var(--text-primary);">Visualisasi Data</strong> — grafik distribusi fitur-fitur penting.</li>
+      <li><strong style="color:var(--text-primary);">Evaluasi Model</strong> — metrik performa model beserta interpretasinya.</li>
+      <li><strong style="color:var(--text-primary);">Feature Importance</strong> — fitur mana yang paling menentukan keputusan model.</li>
+      <li><strong style="color:var(--text-primary);">Insight & Rekomendasi</strong> — kesimpulan non-teknis dan rekomendasi tim keamanan.</li>
+    </ol>
+    <div class="callout info">
+      <strong>Tips demo:</strong> siapkan 2-3 contoh URL legitimate (situs kampus/institusi resmi)
+      dan, jika diizinkan dosen, contoh URL dari database phishing publik (PhishTank/OpenPhish)
+      untuk menunjukkan kedua skenario prediksi.
+    </div>
+  </div>
+</div>
+
+<div id="tab-keamanan" class="tab-panel">
+  <p>Sesuai ketentuan tugas (poin 10), berikut identifikasi risiko keamanan pada aplikasi ini
+     beserta dampak dan mitigasinya.</p>
+
+  <table class="data-table">
+    <tr><th>Aset</th><th>Risiko</th><th>Dampak</th><th>Level</th><th>Mitigasi</th></tr>
+    <tr>
+      <td>Dataset</td>
+      <td>Dataset publik berisi ribuan URL yang sudah tidak aktif; tidak berisi PII namun tetap berisiko disalahgunakan sebagai referensi.</td>
+      <td>Rendah — risiko re-identifikasi minim.</td>
+      <td><span class="badge-level rendah">Rendah</span></td>
+      <td>Tidak menyimpan data tambahan pengguna aplikasi.</td>
+    </tr>
+    <tr>
+      <td>Source code</td>
+      <td>File .pkl dari sumber tidak tepercaya berpotensi mengeksekusi kode berbahaya saat di-unpickle.</td>
+      <td>Tinggi jika file model diganti pihak tidak berwenang.</td>
+      <td><span class="badge-level tinggi">Tinggi</span></td>
+      <td>Hanya memuat model dari repository terverifikasi; pertimbangkan checksum validation.</td>
+    </tr>
+    <tr>
+      <td>Fitur Cek URL (live fetch)</td>
+      <td>Aplikasi melakukan HTTP request ke URL input pengguna — berpotensi SSRF jika mengarah ke alamat internal.</td>
+      <td>Sedang/Tinggi — dapat membocorkan info jaringan internal.</td>
+      <td><span class="badge-level tinggi">Tinggi</span></td>
+      <td>Blok domain/IP privat (localhost, 127.0.0.1, 10.x, 192.168.x); batasi timeout & ukuran respons.</td>
+    </tr>
+    <tr>
+      <td>Dashboard/Aplikasi</td>
+      <td>Jika dideploy publik tanpa autentikasi, siapa pun dapat memakai fitur Cek URL secara masif.</td>
+      <td>Sedang — beban server berlebih, potensi disalahgunakan.</td>
+      <td><span class="badge-level sedang">Sedang</span></td>
+      <td>Terapkan rate limiting per IP/sesi dan/atau autentikasi sederhana.</td>
+    </tr>
+    <tr>
+      <td>Model ML</td>
+      <td>Model dapat bias terhadap pola dataset training dan tidak selalu general ke pola phishing baru (adversarial evasion).</td>
+      <td>Sedang/Tinggi — false negative pada phishing canggih.</td>
+      <td><span class="badge-level sedang">Sedang</span></td>
+      <td>Evaluasi berkala dengan data baru, kombinasikan dengan lapisan keamanan lain.</td>
+    </tr>
+    <tr>
+      <td>Input aplikasi</td>
+      <td>Input URL tidak valid/format aneh dapat menyebabkan error atau permintaan HTTP menggantung.</td>
+      <td>Sedang — aplikasi bisa crash/hang.</td>
+      <td><span class="badge-level sedang">Sedang</span></td>
+      <td>Validasi format URL, batasi timeout request (sudah diterapkan: 10 detik).</td>
+    </tr>
+  </table>
+
+  <h3 style="margin-top:24px;">Aspek Etika, Privasi, dan Bias Data</h3>
+  <div class="card">
+    <p><strong style="color:var(--text-primary);">Privasi:</strong> aplikasi tidak menyimpan URL
+      yang dicek pengguna secara permanen (hanya diproses sementara di memori sesi).</p>
+    <p><strong style="color:var(--text-primary);">Bias:</strong> dataset training didominasi
+      domain <code>.com</code> (~48%), sehingga model berpotensi kurang optimal pada TLD yang
+      jarang muncul di data training.</p>
+    <p><strong style="color:var(--text-primary);">Tanggung jawab penggunaan:</strong> hasil
+      prediksi bersifat rekomendasi/skor risiko, bukan keputusan final.</p>
+  </div>
+
+  <h3 style="margin-top:24px;">Rencana Deployment, Optimasi, dan Continuous Improvement</h3>
+  <div class="card">
+    <p><strong style="color:var(--text-primary);">Deployment:</strong> dijalankan lokal via
+      <code>python app.py</code>, atau dideploy ke server kampus (mis. via Gunicorn + Nginx).</p>
+    <p><strong style="color:var(--text-primary);">Optimasi:</strong> fitur visualisasi memakai
+      sampel data (bukan seluruh 234 ribu baris); model dimuat sekali saat aplikasi start
+      (bukan setiap request) agar tidak perlu training ulang.</p>
+    <p><strong style="color:var(--text-primary);">Skalabilitas:</strong> jika volume data
+      bertambah besar, pertimbangkan database terpisah (PostgreSQL) dan model-serving terpisah.</p>
+    <p><strong style="color:var(--text-primary);">MLOps sederhana:</strong> version control kode
+      via GitHub, <code>requirements.txt</code> untuk reproduksi environment, monitoring performa
+      model secara berkala, dan rencana retraining periodik.</p>
+  </div>
+</div>
+
+{% endblock %}

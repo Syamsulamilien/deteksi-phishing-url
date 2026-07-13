@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Deteksi Phishing URL{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">🛡️</div>
+      <div>
+        <div class="name">Phishing Scan</div>
+        <div class="sub">DASD × SIAB</div>
+      </div>
+    </div>
+
+    <div class="nav-eyebrow">Modul</div>
+    <a href="{{ url_for('home') }}" class="nav-item {{ 'active' if active=='home' }}"><span class="icon">◆</span> Beranda</a>
+    <a href="{{ url_for('check_url_page') }}" class="nav-item {{ 'active' if active=='check' }}"><span class="icon">▣</span> Cek URL</a>
+
+    <div class="nav-eyebrow">Data & Model</div>
+    <a href="{{ url_for('dataset_page') }}" class="nav-item {{ 'active' if active=='dataset' }}"><span class="icon">≡</span> Ringkasan Dataset</a>
+    <a href="{{ url_for('visualisasi_page') }}" class="nav-item {{ 'active' if active=='visualisasi' }}"><span class="icon">▤</span> Visualisasi Data</a>
+    <a href="{{ url_for('evaluasi_page') }}" class="nav-item {{ 'active' if active=='evaluasi' }}"><span class="icon">✓</span> Evaluasi Model</a>
+    <a href="{{ url_for('feature_importance_page') }}" class="nav-item {{ 'active' if active=='feature-importance' }}"><span class="icon">✶</span> Feature Importance</a>
+
+    <div class="nav-eyebrow">Kesimpulan</div>
+    <a href="{{ url_for('insight_page') }}" class="nav-item {{ 'active' if active=='insight' }}"><span class="icon">◈</span> Insight & Rekomendasi</a>
+    <a href="{{ url_for('dokumentasi_page') }}" class="nav-item {{ 'active' if active=='dokumentasi' }}"><span class="icon">▦</span> Dokumentasi</a>
+  </aside>
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

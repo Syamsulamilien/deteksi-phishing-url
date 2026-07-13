@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Cek URL — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Modul Pemindaian</div>
+<div class="page-header">
+  <h1>Cek URL</h1>
+  <p>Masukkan URL yang ingin diperiksa. Sistem akan mengambil halaman tersebut dan
+     menganalisis 15 fitur teknis (hasil seleksi top feature importance) untuk memprediksi
+     apakah URL tersebut phishing atau legitimate.</p>
+</div>
+
+<div class="scan-panel">
+  <form id="scan-form" class="scan-form">
+    <input type="text" id="url-input" class="input" placeholder="contoh: https://www.example.com" autocomplete="off">
+    <button type="submit" class="btn btn-primary" id="scan-btn">
+      <span id="btn-label">Cek</span>
+    </button>
+  </form>
+</div>
+
+<div id="result-area" style="margin-top:24px; display:none;">
+
+  <div id="fetch-warning"></div>
+
+  <div class="grid grid-2" style="align-items:start; margin-top:16px;">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <span id="verdict-badge" class="verdict-badge"><span class="dot"></span><span id="verdict-text"></span></span>
+        <span class="mono" style="font-size:0.75rem; color:var(--text-faint);" id="domain-caption"></span>
+      </div>
+      <div style="margin-top:6px;">
+        <span class="mono" id="render-method-badge" style="font-size:0.7rem; color:var(--text-faint);"></span>
+      </div>
+
+      <div class="gauge-wrap">
+        <canvas id="gauge-canvas" width="240" height="140"></canvas>
+        <div class="gauge-value" id="gauge-value">0%</div>
+        <div class="gauge-caption" id="gauge-caption">SKOR RISIKO PHISHING</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kenapa diprediksi begitu?</h3>
+      <p style="font-size:0.85rem;">Fitur berikut paling berpengaruh dalam keputusan model (feature importance global):</p>
+      <div id="top-features"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>Detail Seluruh 15 Fitur yang Digunakan Model</h3>
+    <div class="kv-grid" id="key-features"></div>
+  </div>
+
+  <details class="expander" style="margin-top:12px;">
+    <summary>Info diagnostik pengambilan halaman (untuk debugging)</summary>
+    <pre class="mono" id="meta-info" style="white-space:pre-wrap; font-size:0.78rem; color:var(--text-muted);"></pre>
+  </details>
+</div>
+
+<div id="error-area" style="display:none; margin-top:24px;">
+  <div class="callout danger" id="error-text"></div>
+</div>
+
+<hr class="rule">
+<details class="expander">
+  <summary>ℹ️ Batasan sistem (baca sebelum demo)</summary>
+
+  <h3 style="margin-top:4px; font-size:0.95rem;">1. Cara sistem mengambil halaman</h3>
+  <p style="font-size:0.85rem;">
+    Sistem memakai <strong>headless browser (Playwright + Chromium)</strong> sebagai metode
+    utama — halaman benar-benar dirender seperti browser sungguhan, termasuk menjalankan
+    JavaScript, mengumpulkan konten dari dalam <code>&lt;iframe&gt;</code>, dan mencoba menutup
+    cookie-consent wall otomatis. Kalau Playwright gagal dijalankan (mis. belum ter-install),
+    sistem otomatis <em>fallback</em> ke HTTP request biasa (JavaScript tidak dieksekusi, jadi
+    kurang akurat untuk situs modern). Metode yang dipakai pada suatu pengecekan bisa dilihat
+    di panel "Info diagnostik" (<code>render_method</code>: <code>playwright</code> atau
+    <code>requests_fallback</code>).
+  </p>
+
+  <h3 style="font-size:0.95rem;">2. Model kini hanya memakai 15 fitur (bukan 50)</h3>
+  <p style="font-size:0.85rem;">
+    Berdasarkan eksperimen feature selection (lihat notebook
+    <code>Eksperimen_Top_Feature_Importance.ipynb</code>), model disederhanakan hanya memakai
+    15 fitur dengan feature importance tertinggi. Fitur <code>URLSimilarityIndex</code> yang
+    sebelumnya hanya bisa diestimasi kasar (heuristik) sengaja <strong>dikecualikan</strong>
+    dari pemilihan karena ditemukan berkorelasi hampir sempurna dengan label (indikasi data
+    leakage bawaan metodologi dataset asli, bukan sinyal yang dapat diandalkan pada URL baru).
+    Hasilnya, seluruh 15 fitur yang dipakai sekarang dapat dihitung secara <strong>langsung dan
+    akurat</strong> — tidak ada lagi fitur yang memakai pendekatan/estimasi kasar.
+  </p>
+
+  <h3 style="font-size:0.95rem;">3. Kasus yang tetap berisiko salah prediksi</h3>
+  <ul style="color:var(--text-muted); padding-left:20px; font-size:0.85rem;">
+    <li><strong>Halaman benar-benar tidak bisa diakses</strong> (situs mati, timeout, atau
+      pemblokiran total) → fitur berbasis konten diisi nilai default netral, prediksi jadi
+      kurang bisa diandalkan.</li>
+    <li><strong>Distribusi data training yang ekstrem/bimodal</strong> — situs legitimate di
+      data training rata-rata memiliki puluhan hingga ratusan link eksternal/gambar/script,
+      sementara situs phishing rata-rata mendekati nol. Situs legitimate dengan desain
+      sederhana/minimalis (mis. halaman dokumentasi, situs statis) bisa jatuh di antara kedua
+      ekstrem tersebut dan berisiko salah diprediksi, karena model jarang melihat contoh serupa
+      saat training. <strong>Ini keterbatasan karakteristik model/data, bukan bug ekstraksi
+      fitur</strong> — baik untuk dibahas di bagian "keterbatasan model" laporan.</li>
+    <li><strong>Pola phishing yang belum terwakili di data training</strong> — model dilatih
+      pada dataset PhiUSIIL per tanggal pengumpulan data tersebut, sehingga taktik phishing
+      yang baru muncul berpotensi tidak terdeteksi optimal.</li>
+  </ul>
+
+  <h3 style="font-size:0.95rem;">4. Cara mendiagnosis hasil yang meleset</h3>
+  <p style="font-size:0.85rem;">
+    Buka panel <strong>"Info diagnostik pengambilan halaman"</strong> dan
+    <strong>"Detail Seluruh 15 Fitur"</strong> di atas — kalau ada indikasi
+    <code>bot_blocked</code> atau <code>consent_wall</code> bernilai <code>true</code>, atau
+    nilai fitur seperti jumlah gambar/link semuanya 0 padahal situsnya jelas punya banyak
+    konten, itu tandanya halaman belum berhasil ter-render dengan benar.
+  </p>
+</details>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/gauge.js') }}"></script>
+<script src="{{ url_for('static', filename='js/check_url.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Ringkasan Dataset — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Data & Model</div>
+<div class="page-header">
+  <h1>Ringkasan Dataset</h1>
+  <p>Dataset yang digunakan adalah <strong>PhiUSIIL Phishing URL Dataset</strong>, dataset publik
+     berisi URL berlabel Legitimate/Phishing lengkap dengan 50+ fitur teknis dari URL dan konten
+     halaman webnya.</p>
+</div>
+
+<div class="grid grid-4">
+  <div class="stat"><div class="label">Total Data (baris)</div><div class="value">{{ "{:,}".format(summary.total_rows).replace(',', '.') }}</div></div>
+  <div class="stat"><div class="label">Jumlah Fitur Model</div><div class="value">{{ summary.total_model_features }}</div></div>
+  <div class="stat"><div class="label">Kolom Mentah CSV</div><div class="value">{{ summary.total_features_raw }}</div></div>
+  <div class="stat"><div class="label">Jumlah Kelas</div><div class="value">2</div></div>
+</div>
+
+<hr class="rule">
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Distribusi Label</h3>
+    <canvas id="label-pie" height="220"></canvas>
+    <p style="text-align:center; margin-top:12px;">
+      <span class="text-safe">Legitimate: {{ summary.label_pct.Legitimate }}%</span> ·
+      <span class="text-danger">Phishing: {{ summary.label_pct.Phishing }}%</span>
+    </p>
+  </div>
+  <div class="card">
+    <h3>10 TLD Terbanyak</h3>
+    <canvas id="tld-bar" height="220"></canvas>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h3>Komponen Deskripsi Dataset</h3>
+<table class="data-table">
+  <tr><th>Komponen</th><th>Keterangan</th></tr>
+  <tr><td>Nama dataset</td><td>PhiUSIIL Phishing URL Dataset</td></tr>
+  <tr><td>Sumber dataset</td><td>Kaggle / UCI Machine Learning Repository</td></tr>
+  <tr><td>Domain</td><td>Keamanan siber — deteksi phishing URL</td></tr>
+  <tr><td>Jumlah data (setelah pembersihan)</td><td>{{ "{:,}".format(summary.total_rows).replace(',', '.') }}</td></tr>
+  <tr><td>Jumlah fitur</td><td>{{ summary.total_model_features }} fitur numerik/biner</td></tr>
+  <tr><td>Variabel target</td><td>label (0 = Phishing, 1 = Legitimate)</td></tr>
+  <tr><td>Jenis data</td><td>Numerik & biner (hasil ekstraksi dari URL dan HTML)</td></tr>
+  <tr><td>Potensi risiko data</td><td>Sebagian baris mengandung nilai desimal yang rusak akibat locale saat ekspor CSV (koma vs titik) dan ketidaklengkapan skor similarity — sudah dibersihkan/direkonstruksi pada tahap preprocessing.</td></tr>
+</table>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const labelData = {
+  labels: ["Legitimate", "Phishing"],
+  values: [{{ summary.label_counts["Legitimate (1)"] }}, {{ summary.label_counts["Phishing (0)"] }}],
+};
+new Chart(document.getElementById("label-pie"), {
+  type: "doughnut",
+  data: {
+    labels: labelData.labels,
+    datasets: [{ data: labelData.values, backgroundColor: ["#35C79A", "#FF5D5D"], borderWidth: 0 }],
+  },
+  options: {
+    plugins: { legend: { labels: { color: "#E8ECF4", font: { family: "Inter" } } } },
+  },
+});
+
+const tldLabels = {{ summary.top_tlds.keys()|list|tojson }};
+const tldValues = {{ summary.top_tlds.values()|list|tojson }};
+new Chart(document.getElementById("tld-bar"), {
+  type: "bar",
+  data: {
+    labels: tldLabels,
+    datasets: [{ data: tldValues, backgroundColor: "#5B8CFF" }],
+  },
+  options: {
+    indexAxis: "y",
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: "#8B96AC" }, grid: { color: "#24304A" } },
+      y: { ticks: { color: "#8B96AC" }, grid: { display: false } },
+    },
+  },
+});
+</script>
+{% endblock %}
