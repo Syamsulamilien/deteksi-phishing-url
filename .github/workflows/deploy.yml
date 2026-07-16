@@ -1,0 +1,73 @@
+name: CI/CD deteksi-phishing-url
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---------- TEST (self-hosted) ----------
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax check (py_compile)
+        run: |
+          python -m py_compile app.py utils/__init__.py utils/*.py scripts/*.py
+
+      - name: Block Flask debug=True (RCE risk)
+        run: |
+          if grep -rn "debug=True" app.py; then
+            echo "::error::Jangan commit Flask debug=True (Werkzeug debugger = RCE)"
+            exit 1
+          fi
+
+      - name: Smoke import app (load model + data)
+        run: |
+          python -c "import app; print('app import OK')"
+
+  # ---------- DEPLOY LOKAL (self-hosted, mesin yg sama) ----------
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: Deploy (git pull + deps + restart + health)
+        run: |
+          set -e
+          APP_DIR=/var/www/deteksi-phishing-url
+          VENV="$APP_DIR/venv"
+          cd "$APP_DIR"
+
+          echo "[*] Git pull..."
+          git pull origin main
+          git checkout main
+
+          echo "[*] Install/update deps..."
+          "$VENV/bin/pip" install -r requirements.txt
+          "$VENV/bin/python" -m playwright install chromium
+
+          echo "[*] Restart service..."
+          systemctl restart phishing-app
+          sleep 3
+
+          echo "[*] Health check..."
+          if curl -fsS http://127.0.0.1:8000/api/feature-labels >/dev/null; then
+            echo "HEALTH_OK"
+          else
+            echo "HEALTH_WARN - cek: journalctl -u phishing-app -n 50"
+            exit 1
+          fi
+          echo "[+] Deploy selesai."
