@@ -7,33 +7,20 @@ on:
     branches: [main]
 
 jobs:
-  # ---------- TEST (self-hosted) ----------
   test:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
+      - name: Syntax check (py_compile) via project venv
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Syntax check (py_compile)
-        run: |
-          python -m py_compile app.py utils/__init__.py utils/*.py scripts/*.py
-
-      # NOTE: app.py punya `app.run(debug=True, ...)` di blok `if __name__=="__main__"`
-      # tapi itu TIDAK aktif di prod (jalankan via gunicorn). Sengaja gak di-block
-      # biar CI gak false-positive. Kalau mau hardening, hapus baris itu di app.py.
+          /var/www/deteksi-phishing-url/venv/bin/python -m py_compile \
+            app.py utils/__init__.py utils/*.py scripts/*.py
 
       - name: Smoke import app (load model + data)
         run: |
-          python -c "import app; print('app import OK')"
+          cd /var/www/deteksi-phishing-url
+          /var/www/deteksi-phishing-url/venv/bin/python -c "import app; print('app import OK')"
 
   # ---------- DEPLOY LOKAL (self-hosted, mesin yg sama) ----------
   deploy:
