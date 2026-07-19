@@ -11,7 +11,10 @@
 </head>
 <body>
 <div class="shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+    <button class="nav-toggle nav-close" id="navClose" aria-label="Tutup menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="sidebar-brand">
       <div class="mark">🛡️</div>
       <div>
@@ -35,7 +38,12 @@
     <a href="{{ url_for('dokumentasi_page') }}" class="nav-item {{ 'active' if active=='dokumentasi' }}"><span class="icon">▦</span> Dokumentasi</a>
   </aside>
 
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <main class="main">
+    <button class="nav-toggle nav-open" id="navToggle" aria-label="Buka menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     {% block content %}{% endblock %}
   </main>
 </div>
