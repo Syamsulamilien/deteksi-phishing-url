@@ -16,11 +16,11 @@
 
 <hr class="rule">
 
-<h3>5 Fitur Paling Berpengaruh</h3>
+<h3>15 Fitur yang Digunakan Model (Diurutkan dari Paling Berpengaruh)</h3>
 <div class="grid grid-5">
-  {% for name, importance, name_id in top8_labeled[:5] %}
+  {% for name, importance, name_id in top15_labeled %}
   <div class="stat">
-    <div class="label">{{ name_id }}</div>
+    <div class="label">#{{ loop.index }} — {{ name_id }}</div>
     <div class="value">{{ "%.1f"|format(importance*100) }}%</div>
     <div class="mono" style="font-size:0.65rem; color:var(--text-faint); margin-top:4px;">{{ name }}</div>
   </div>
@@ -29,14 +29,12 @@
 
 <hr class="rule">
 
-<h3>Penjelasan Fitur Teratas</h3>
+<h3>Penjelasan Seluruh 15 Fitur</h3>
 <div class="card">
-  {% for name, importance, name_id in top8_labeled %}
-    {% if name in explanations %}
-    <p><strong style="color:var(--text-primary);">{{ name_id }}</strong>
-      <span class="mono" style="font-size:0.72rem; color:var(--text-faint);">({{ name }})</span>
-      — {{ explanations[name] }}</p>
-    {% endif %}
+  {% for name, importance, name_id in top15_labeled %}
+    <p><strong style="color:var(--text-primary);">{{ loop.index }}. {{ name_id }}</strong>
+      <span class="mono" style="font-size:0.72rem; color:var(--text-faint);">({{ name }}) — {{ "%.2f"|format(importance*100) }}%</span>
+      <br>{{ explanations.get(name, "Fitur teknis yang berkontribusi pada keputusan model.") }}</p>
   {% endfor %}
 </div>
 

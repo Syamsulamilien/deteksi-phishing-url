@@ -183,13 +183,17 @@ def feature_importance_page():
         "HasCopyrightInfo": "Apakah halaman mencantumkan info hak cipta — sering absen pada situs phishing yang buru-buru dibuat.",
         "IsHTTPS": "Apakah situs menggunakan koneksi terenkripsi HTTPS — banyak (bukan semua) situs phishing tidak memakainya.",
         "HasDescription": "Apakah halaman punya meta description — indikasi situs dikelola/dioptimasi secara profesional.",
+        "URLLength": "Panjang keseluruhan URL. URL phishing kadang dibuat lebih panjang untuk menyamarkan domain asli atau menyisipkan parameter mencurigakan.",
+        "NoOfDegitsInURL": "Jumlah karakter angka pada URL. URL phishing cenderung menyisipkan angka acak untuk meniru pola domain resmi atau menghindari deteksi.",
+        "LargestLineLength": "Panjang baris kode terpanjang pada HTML. Baris yang sangat panjang biasanya menandakan kode yang di-minify atau disisipkan skrip tersembunyi.",
+        "DegitRatioInURL": "Rasio jumlah angka dibanding total karakter pada URL. Rasio tinggi sering ditemukan pada URL phishing yang menyamarkan alamat aslinya.",
+        "NoOfOtherSpecialCharsInURL": "Jumlah karakter spesial lain (di luar huruf/angka umum) pada URL, sering dipakai untuk menyamarkan atau mengaburkan URL asli.",
     }
     top15 = fi[:15]
     top15_labeled = [(name, importance, label_id(name)) for name, importance in top15]
-    top8_labeled = [(name, importance, label_id(name)) for name, importance in fi[:8]]
     return render_template(
         "feature_importance.html", active="feature-importance",
-        top15=top15, top8=fi[:8], top15_labeled=top15_labeled, top8_labeled=top8_labeled,
+        top15=top15, top15_labeled=top15_labeled,
         explanations=explanations,
     )
 
