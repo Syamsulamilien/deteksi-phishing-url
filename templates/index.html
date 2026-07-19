@@ -40,51 +40,29 @@
   </div>
 
   <div>
-    <div class="home-stats">
-      <div class="hero-stat" style="--pct:{{ '%.0f'|format(metrics.accuracy*100) }};">
-        <div class="hero-copy">
-          <div class="label">Performa Model</div>
-          <h3>Akurasi {{ "%.2f"|format(metrics.accuracy*100) }}%</h3>
-          <p>Hasil evaluasi pada test set menggunakan metrik utama model Random Forest.</p>
-        </div>
-        <div class="gauge-mini">
-          <span>{{ "%.0f"|format(metrics.accuracy*100) }}%</span>
-        </div>
-      </div>
-
+    <div class="grid" style="gap:14px;">
       <div class="stat">
         <div class="label">Total Data Training</div>
         <div class="value">{{ "{:,}".format(summary.total_rows).replace(',', '.') }}</div>
-        <div class="hint">Baris dataset berlabel</div>
       </div>
       <div class="stat">
         <div class="label">Jumlah Fitur Model</div>
         <div class="value">{{ summary.total_model_features }}</div>
-        <div class="hint">Top feature terpilih</div>
       </div>
       <div class="stat">
-        <div class="label">Akurasi (test set)</div>
+        <div class="label">Akurasi Model (test set)</div>
         <div class="value safe">{{ "%.2f"|format(metrics.accuracy*100) }}%</div>
-        <div class="hint">Random Forest</div>
       </div>
       <div class="stat">
         <div class="label">F1-Score</div>
         <div class="value safe">{{ "%.2f"|format(metrics.f1*100) }}%</div>
-        <div class="hint">Weighted avg</div>
       </div>
     </div>
 
-    <div class="team-card">
-      <div class="nav-eyebrow">Tim Pengembang</div>
-      <div class="team-members">
-        <div class="team-member">
-          <div class="avatar">C</div>
-          <div class="meta">
-            <div class="name">Ceeliii &amp; Tim</div>
-            <div class="role">Universitas Aisyiyah Yogyakarta</div>
-          </div>
-        </div>
-      </div>
+    <div class="card" style="margin-top:14px;">
+      <div class="nav-eyebrow" style="margin:0 0 8px;">Tim Pengembang</div>
+      <p style="margin:0; color:var(--text-primary);">Ceeliii & Tim</p>
+      <p style="margin:0;">Universitas Aisyiyah Yogyakarta</p>
     </div>
   </div>
 </div>
