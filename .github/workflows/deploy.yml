@@ -7,25 +7,15 @@ on:
     branches: [main]
 
 jobs:
-  # ---------- TEST (self-hosted) ----------
   test:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
+      - name: Syntax check (py_compile) via project venv
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Syntax check (py_compile)
-        run: |
-          python -m py_compile app.py utils/__init__.py utils/*.py scripts/*.py
+          /var/www/deteksi-phishing-url/venv/bin/python -m py_compile \
+            app.py utils/__init__.py utils/*.py scripts/*.py
 
       - name: Block Flask debug=True (RCE risk)
         run: |
@@ -36,7 +26,8 @@ jobs:
 
       - name: Smoke import app (load model + data)
         run: |
-          python -c "import app; print('app import OK')"
+          cd /var/www/deteksi-phishing-url
+          /var/www/deteksi-phishing-url/venv/bin/python -c "import app; print('app import OK')"
 
   # ---------- DEPLOY LOKAL (self-hosted, mesin yg sama) ----------
   deploy:
@@ -59,8 +50,8 @@ jobs:
           "$VENV/bin/pip" install -r requirements.txt
           "$VENV/bin/python" -m playwright install chromium
 
-          echo "[*] Restart service..."
-          systemctl restart phishing-app
+          echo "[*] Restart service (via sudo NOPASSWD)..."
+          sudo systemctl restart phishing-app
           sleep 3
 
           echo "[*] Health check..."
