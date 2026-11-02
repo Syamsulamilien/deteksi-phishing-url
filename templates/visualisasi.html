@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Visualisasi Data — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Data & Model</div>
+<div class="page-header">
+  <h1>Visualisasi Data</h1>
+  <p>Menggunakan sampel seimbang (8.000 legitimate + 8.000 phishing) dari data training
+     untuk menjaga performa halaman.</p>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Distribusi {{ label_urllength }} (URLLength)</h3>
+    <canvas id="chart-urllength" height="220"></canvas>
+    <p style="margin-top:10px; font-size:0.82rem;">URL phishing cenderung memiliki panjang yang lebih bervariasi dari legitimate.</p>
+  </div>
+  <div class="card">
+    <h3>Penggunaan HTTPS: Phishing vs Legitimate</h3>
+    <canvas id="chart-https" height="220"></canvas>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:18px;">
+  <div class="card">
+    <h3>{{ label_extref }} (NoOfExternalRef)</h3>
+    <canvas id="chart-extref" height="220"></canvas>
+  </div>
+  <div class="card">
+    <h3>{{ label_loc }} (LineOfCode)</h3>
+    <canvas id="chart-loc" height="220"></canvas>
+  </div>
+</div>
+
+<hr class="rule">
+<div class="card">
+  <h3>Eksplorasi Bebas</h3>
+  <label class="mono" style="font-size:0.8rem; color:var(--text-faint);">Pilih fitur untuk dilihat distribusinya:</label>
+  <select id="feature-select" class="input" style="margin-top:8px; max-width:340px;">
+    {% for col, col_id in numeric_cols %}
+    <option value="{{ col }}">{{ col_id }} ({{ col }})</option>
+    {% endfor %}
+  </select>
+  <canvas id="chart-explore" height="220" style="margin-top:18px;"></canvas>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const overlayOpts = (xlabel) => ({
+  plugins: { legend: { labels: { color: "#E8ECF4" } } },
+  scales: {
+    x: { title: { display: true, text: xlabel, color: "#8B96AC" }, ticks: { color: "#8B96AC", maxTicksLimit: 10 }, grid: { color: "#1C2740" } },
+    y: { ticks: { color: "#8B96AC" }, grid: { color: "#1C2740" } },
+  },
+});
+
+function makeOverlay(canvasId, chartData, xlabel) {
+  return new Chart(document.getElementById(canvasId), {
+    type: "bar",
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        { label: "Legitimate", data: chartData.legit, backgroundColor: "rgba(53,199,154,0.55)" },
+        { label: "Phishing", data: chartData.phish, backgroundColor: "rgba(255,93,93,0.55)" },
+      ],
+    },
+    options: { ...overlayOpts(xlabel), barPercentage: 1, categoryPercentage: 1 },
+  });
+}
+
+makeOverlay("chart-urllength", {{ charts.urllength|tojson }}, "URLLength");
+makeOverlay("chart-extref", {{ charts.noofexternalref|tojson }}, "NoOfExternalRef");
+makeOverlay("chart-loc", {{ charts.lineofcode|tojson }}, "LineOfCode");
+
+new Chart(document.getElementById("chart-https"), {
+  type: "bar",
+  data: {
+    labels: ["Legitimate", "Phishing"],
+    datasets: [
+      { label: "HTTPS", data: [{{ https_data.legit_https }}, {{ https_data.phish_https }}], backgroundColor: "#35C79A" },
+      { label: "Tidak HTTPS", data: [{{ https_data.legit_no }}, {{ https_data.phish_no }}], backgroundColor: "#FF5D5D" },
+    ],
+  },
+  options: overlayOpts(""),
+});
+
+let exploreChart = null;
+async function loadExplore(col) {
+  const resp = await fetch("/api/histogram/" + col);
+  const data = await resp.json();
+  if (exploreChart) exploreChart.destroy();
+  const axisLabel = data.label_id ? `${data.label_id} (${col})` : col;
+  exploreChart = makeOverlay("chart-explore", data, axisLabel);
+}
+document.getElementById("feature-select").addEventListener("change", (e) => loadExplore(e.target.value));
+loadExplore(document.getElementById("feature-select").value);
+</script>
+{% endblock %}

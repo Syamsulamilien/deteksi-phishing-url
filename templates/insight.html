@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Insight & Rekomendasi — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Kesimpulan</div>
+<div class="page-header">
+  <h1>Insight & Rekomendasi</h1>
+  <p>Ringkasan temuan utama dari analisis data dan model, disampaikan dalam bahasa yang mudah
+     dipahami untuk mendukung pengambilan keputusan tim keamanan/non-teknis.</p>
+</div>
+
+<h3>🔑 Temuan Utama</h3>
+<div class="grid grid-2">
+  <div class="card">
+    <div class="nav-eyebrow" style="margin-top:0;">01 · HTTPS bukan jaminan mutlak</div>
+    <p>Hanya <strong class="text-danger">{{ stats.https_phish }}%</strong> URL phishing pada
+      data menggunakan HTTPS, dibandingkan <strong class="text-safe">{{ stats.https_legit }}%</strong>
+      pada URL legitimate. Situs tanpa HTTPS jauh lebih layak dicurigai.</p>
+  </div>
+  <div class="card">
+    <div class="nav-eyebrow" style="margin-top:0;">02 · Kelengkapan visual mencerminkan legitimasi</div>
+    <p>Rata-rata jumlah gambar pada halaman phishing ({{ stats.image_phish }}) jauh lebih
+      sedikit dibanding legitimate ({{ stats.image_legit }}). Situs phishing umumnya dibuat
+      terburu-buru hanya untuk meniru tampilan login, tanpa kelengkapan visual situs asli.</p>
+  </div>
+  <div class="card">
+    <div class="nav-eyebrow" style="margin-top:0;">03 · Struktur link eksternal jadi pembeda</div>
+    <p>Rata-rata jumlah link eksternal pada halaman phishing ({{ stats.extref_phish }}) vs
+      legitimate ({{ stats.extref_legit }}) — sesuai dengan <code>NoOfExternalRef</code> yang
+      menjadi fitur paling berpengaruh di model.</p>
+  </div>
+  <div class="card">
+    <div class="nav-eyebrow" style="margin-top:0;">04 · Akurasi tinggi, tetap ada batasan</div>
+    <p>Model sangat akurat pada data historis, dengan F1-Score
+      <strong class="text-safe">{{ "%.1f"|format(metrics.f1*100) }}%</strong>, tapi tetap
+      memiliki keterbatasan pada pola phishing baru/URL real-time.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h3>📌 Rekomendasi untuk Tim Keamanan</h3>
+<div class="card">
+  <ul style="color:var(--text-muted); padding-left:20px;">
+    <li><strong style="color:var(--text-primary);">Flag otomatis</strong> URL yang tidak
+      menggunakan HTTPS <em>dan</em> memiliki jumlah redirect di atas rata-rata — kombinasi ini
+      meningkatkan kecurigaan phishing secara signifikan.</li>
+    <li><strong style="color:var(--text-primary);">Audit berkala</strong> terhadap halaman dengan
+      struktur link eksternal tidak wajar.</li>
+    <li><strong style="color:var(--text-primary);">Edukasi pengguna</strong> agar tidak hanya
+      mengandalkan ikon gembok (HTTPS) sebagai tanda situs aman.</li>
+    <li><strong style="color:var(--text-primary);">Integrasikan sebagai lapisan tambahan</strong>,
+      bukan pengganti sistem keamanan yang sudah ada.</li>
+    <li><strong style="color:var(--text-primary);">Perbarui model secara berkala</strong> dengan
+      data URL phishing terbaru.</li>
+  </ul>
+</div>
+
+<hr class="rule">
+<div class="callout safe">
+  <strong>Dampak Bisnis:</strong> Dengan mengintegrasikan sistem deteksi ini ke alur kerja
+  (plugin browser, filter email, atau API internal), organisasi dapat mengurangi risiko kebocoran
+  data, menurunkan biaya insiden keamanan, dan meningkatkan kepercayaan pengguna.
+</div>
+
+{% endblock %}

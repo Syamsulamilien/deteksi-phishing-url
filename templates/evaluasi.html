@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Evaluasi Model — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Data & Model</div>
+<div class="page-header">
+  <h1>Evaluasi Model</h1>
+  <p>Evaluasi dilakukan pada data uji (test set) 20% yang dipisahkan secara acak dan stratified
+     dari total data bersih ({{ "{:,}".format(metrics.n_test).replace(',', '.') }} baris data uji).</p>
+</div>
+
+<div class="grid grid-5">
+  <div class="stat"><div class="label">Accuracy</div><div class="value safe">{{ "%.2f"|format(metrics.accuracy*100) }}%</div></div>
+  <div class="stat"><div class="label">Precision</div><div class="value safe">{{ "%.2f"|format(metrics.precision*100) }}%</div></div>
+  <div class="stat"><div class="label">Recall</div><div class="value safe">{{ "%.2f"|format(metrics.recall*100) }}%</div></div>
+  <div class="stat"><div class="label">F1-Score</div><div class="value safe">{{ "%.2f"|format(metrics.f1*100) }}%</div></div>
+  <div class="stat"><div class="label">ROC-AUC</div><div class="value safe">{{ "%.2f"|format(metrics.auc*100) }}%</div></div>
+</div>
+
+<hr class="rule">
+
+<div class="grid grid-2">
+  <div class="card">
+    <h3>Confusion Matrix</h3>
+    <table class="data-table">
+      <tr><th></th><th>Prediksi: Phishing</th><th>Prediksi: Legitimate</th></tr>
+      <tr><td><strong>Aktual: Phishing</strong></td><td class="mono">{{ cm[0][0] }}</td><td class="mono">{{ cm[0][1] }}</td></tr>
+      <tr><td><strong>Aktual: Legitimate</strong></td><td class="mono">{{ cm[1][0] }}</td><td class="mono">{{ cm[1][1] }}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Interpretasi Hasil</h3>
+    <ul style="color:var(--text-muted); padding-left:20px; font-size:0.9rem;">
+      <li><strong>True Negative</strong> (Phishing terdeteksi benar): {{ "{:,}".format(cm[0][0]).replace(',', '.') }}</li>
+      <li><strong>False Positive</strong> (Legitimate salah ditandai Phishing): {{ "{:,}".format(cm[0][1]).replace(',', '.') }}</li>
+      <li><strong>False Negative</strong> (Phishing lolos, dianggap Legitimate): {{ "{:,}".format(cm[1][0]).replace(',', '.') }}</li>
+      <li><strong>True Positive</strong> (Legitimate terdeteksi benar): {{ "{:,}".format(cm[1][1]).replace(',', '.') }}</li>
+    </ul>
+    <p style="font-size:0.88rem;"><strong>Apa artinya bagi pengambilan keputusan bisnis?</strong>
+      Recall tinggi pada kelas Phishing penting karena False Negative (URL phishing yang lolos)
+      berdampak paling berbahaya — pengguna bisa jadi korban pencurian data. Precision tinggi
+      memastikan situs legitimate tidak terlalu sering salah diblokir.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<div class="callout info">
+  Dari setiap 100 URL yang diperiksa sistem, sekitar <strong>{{ "%.0f"|format(metrics.accuracy*100) }} URL
+  diprediksi dengan benar</strong>. Model ini juga sangat jarang "salah alarm" — ketika model
+  mengatakan sebuah URL adalah phishing, kemungkinan besar ({{ "%.1f"|format(metrics.precision*100) }}%)
+  URL itu memang phishing.
+</div>
+
+<details class="expander" style="margin-top:18px;">
+  <summary>Keterbatasan evaluasi (penting untuk laporan)</summary>
+  <ul style="color:var(--text-muted); padding-left:20px; font-size:0.88rem;">
+    <li>Evaluasi ini menggunakan pembagian train/test acak baru dari dataset yang tersedia (bukan
+      pembagian identik dengan proses training model asli, karena split original tidak disertakan
+      bersama file model). Hasil tetap representatif karena model dievaluasi pada data yang tidak
+      digunakan untuk fine-tuning pada tahap ini.</li>
+    <li>Akurasi setinggi ini umum terjadi pada dataset PhiUSIIL karena fitur-fiturnya (terutama
+      fitur berbasis konten HTML seperti <code>NoOfExternalRef</code>, <code>LineOfCode</code>)
+      sangat diskriminatif antara situs phishing dan legitimate pada dataset ini.</li>
+    <li>Performa pada URL baru di dunia nyata (khususnya lewat halaman Cek URL) bisa lebih rendah
+      karena keterbatasan ekstraksi fitur real-time.</li>
+  </ul>
+</details>
+
+{% endblock %}

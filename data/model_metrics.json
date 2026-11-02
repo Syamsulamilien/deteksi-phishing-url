@@ -1,0 +1,84 @@
+{
+  "n_test": 46914,
+  "accuracy": 0.9996589504199173,
+  "precision": 0.9995922301304864,
+  "recall": 0.9998146088246199,
+  "f1": 0.9997034071108145,
+  "auc": 0.9999723883901249,
+  "confusion_matrix": [
+    [
+      19933,
+      11
+    ],
+    [
+      5,
+      26965
+    ]
+  ],
+  "label_map": {
+    "0": "Phishing",
+    "1": "Legitimate"
+  },
+  "feature_importance": [
+    [
+      "NoOfExternalRef",
+      0.1875394444290773
+    ],
+    [
+      "LineOfCode",
+      0.1782318568329693
+    ],
+    [
+      "NoOfSelfRef",
+      0.15482854974099383
+    ],
+    [
+      "NoOfImage",
+      0.1267435692422343
+    ],
+    [
+      "NoOfJS",
+      0.0703361423240365
+    ],
+    [
+      "NoOfCSS",
+      0.06265636226788666
+    ],
+    [
+      "HasSocialNet",
+      0.054997722469465354
+    ],
+    [
+      "NoOfOtherSpecialCharsInURL",
+      0.03395574439065363
+    ],
+    [
+      "HasCopyrightInfo",
+      0.02868968060954372
+    ],
+    [
+      "HasDescription",
+      0.0249450994636046
+    ],
+    [
+      "IsHTTPS",
+      0.024885565603200228
+    ],
+    [
+      "URLLength",
+      0.01714303917444173
+    ],
+    [
+      "NoOfDegitsInURL",
+      0.013644247588449598
+    ],
+    [
+      "LargestLineLength",
+      0.012671049791002902
+    ],
+    [
+      "DegitRatioInURL",
+      0.008731926072440513
+    ]
+  ]
+}

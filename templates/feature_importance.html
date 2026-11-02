@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Feature Importance — Deteksi Phishing{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Data & Model</div>
+<div class="page-header">
+  <h1>Feature Importance</h1>
+  <p>Seberapa besar kontribusi setiap fitur terhadap keputusan model Random Forest dalam
+     membedakan URL Phishing vs Legitimate, dihasilkan otomatis dari model
+     (<code>feature_importances_</code>).</p>
+</div>
+
+<div class="card">
+  <canvas id="fi-chart" height="340"></canvas>
+</div>
+
+<hr class="rule">
+
+<h3>5 Fitur Paling Berpengaruh</h3>
+<div class="grid grid-5">
+  {% for name, importance, name_id in top8_labeled[:5] %}
+  <div class="stat">
+    <div class="label">{{ name_id }}</div>
+    <div class="value">{{ "%.1f"|format(importance*100) }}%</div>
+    <div class="mono" style="font-size:0.65rem; color:var(--text-faint); margin-top:4px;">{{ name }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<hr class="rule">
+
+<h3>Penjelasan Fitur Teratas</h3>
+<div class="card">
+  {% for name, importance, name_id in top8_labeled %}
+    {% if name in explanations %}
+    <p><strong style="color:var(--text-primary);">{{ name_id }}</strong>
+      <span class="mono" style="font-size:0.72rem; color:var(--text-faint);">({{ name }})</span>
+      — {{ explanations[name] }}</p>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const fiLabels = {{ top15_labeled|map(attribute=2)|list|tojson }};
+const fiKeys = {{ top15_labeled|map(attribute=0)|list|tojson }};
+const fiValues = {{ top15_labeled|map(attribute=1)|list|tojson }}.map(v => v * 100);
+
+new Chart(document.getElementById("fi-chart"), {
+  type: "bar",
+  data: {
+    labels: fiLabels,
+    datasets: [{ data: fiValues, backgroundColor: "#5B8CFF" }],
+  },
+  options: {
+    indexAxis: "y",
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          afterLabel: (ctx) => "(" + fiKeys[ctx.dataIndex] + ")",
+        },
+      },
+    },
+    scales: {
+      x: { title: { display: true, text: "Importance (%)", color: "#8B96AC" }, ticks: { color: "#8B96AC" }, grid: { color: "#1C2740" } },
+      y: { ticks: { color: "#E8ECF4", font: { family: "Inter", size: 11 } }, grid: { display: false } },
+    },
+  },
+});
+</script>
+{% endblock %}

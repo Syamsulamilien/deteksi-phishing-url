@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Beranda — Deteksi Phishing URL{% endblock %}
+{% block content %}
+
+<div class="page-eyebrow">// Modul Beranda</div>
+<div class="page-header">
+  <h1>Deteksi Phishing URL berbasis Machine Learning</h1>
+  <p>Proyek Case-Based Learning — mata kuliah Desain Analisis Sains Data (DASD) terintegrasi
+     Sistem Informasi Analitik Bisnis (SIAB), Universitas Aisyiyah Yogyakarta.</p>
+</div>
+
+<div class="grid grid-2" style="align-items: start;">
+  <div class="card">
+    <h3>Apa itu Deteksi Phishing URL?</h3>
+    <p><strong>Phishing</strong> adalah teknik penipuan di mana pelaku membuat website palsu yang
+      meniru tampilan situs resmi (bank, e-commerce, media sosial, dsb) untuk mencuri data
+      sensitif korban seperti username, password, atau data kartu kredit.</p>
+    <p>Aplikasi ini menggunakan model <strong>Machine Learning (Random Forest)</strong> yang
+      dilatih pada dataset <strong>PhiUSIIL Phishing URL Dataset</strong> untuk memprediksi
+      apakah sebuah URL kemungkinan besar <strong>Phishing</strong> atau
+      <strong>Legitimate</strong> (asli/aman), berdasarkan 15 karakteristik teknis (hasil
+      seleksi top feature importance) dari URL
+      dan halaman webnya.</p>
+
+    <h3 style="margin-top:24px;">Kenapa ini penting?</h3>
+    <p>Serangan phishing terus meningkat dan sering menjadi titik masuk pencurian data,
+      penipuan finansial, hingga ransomware. Deteksi dini berbasis machine learning membantu
+      tim keamanan TI dan pengguna umum mengenali URL berisiko sebelum data sensitif
+      diberikan ke situs yang salah.</p>
+
+    <h3 style="margin-top:24px;">Cara Kerja Sistem</h3>
+    <ol style="color:var(--text-muted); padding-left: 20px;">
+      <li>Pengguna memasukkan URL pada halaman <strong>Cek URL</strong>.</li>
+      <li>Sistem mengekstrak fitur dari URL (panjang, HTTPS, subdomain, dll) dan dari HTML
+        halamannya (gambar, script, iframe, form, dll).</li>
+      <li>Fitur dimasukkan ke model <strong>Random Forest</strong> yang dilatih pada ±234 ribu
+        data URL berlabel.</li>
+      <li>Model mengembalikan prediksi beserta skor keyakinan.</li>
+    </ol>
+  </div>
+
+  <div>
+    <div class="grid" style="gap:14px;">
+      <div class="stat">
+        <div class="label">Total Data Training</div>
+        <div class="value">{{ "{:,}".format(summary.total_rows).replace(',', '.') }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Jumlah Fitur Model</div>
+        <div class="value">{{ summary.total_model_features }}</div>
+      </div>
+      <div class="stat">
+        <div class="label">Akurasi Model (test set)</div>
+        <div class="value safe">{{ "%.2f"|format(metrics.accuracy*100) }}%</div>
+      </div>
+      <div class="stat">
+        <div class="label">F1-Score</div>
+        <div class="value safe">{{ "%.2f"|format(metrics.f1*100) }}%</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="nav-eyebrow" style="margin:0 0 8px;">Tim Pengembang</div>
+      <p style="margin:0; color:var(--text-primary);">Ceeliii & Tim</p>
+      <p style="margin:0;">Universitas Aisyiyah Yogyakarta</p>
+    </div>
+  </div>
+</div>
+
+<hr class="rule">
+<div class="callout info">
+  Gunakan menu di sidebar kiri untuk membuka halaman <strong>Cek URL</strong> (fitur utama),
+  <strong>Ringkasan Dataset</strong>, <strong>Visualisasi Data</strong>,
+  <strong>Evaluasi Model</strong>, <strong>Feature Importance</strong>,
+  <strong>Insight & Rekomendasi</strong>, dan <strong>Dokumentasi</strong>.
+</div>
+
+{% endblock %}
